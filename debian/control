@@ -1,32 +1,39 @@
 Source: i3lock
 Section: utils
 Priority: optional
-Maintainer: Jakob Haufe <sur5r@debian.org>
-Build-Depends: debhelper-compat (= 11),
-               pkg-config,
-               libpam0g-dev,
-               libcairo2-dev,
-               libxcb1-dev,
-               libxcb-dpms0-dev,
-               libxcb-image0-dev,
-               libxcb-util0-dev,
-               libev-dev,
-               libxcb-xinerama0-dev,
-               libxkbcommon-dev (>= 0.5.0),
-               libxkbcommon-x11-dev (>= 0.5.0),
-               libxcb-xkb-dev,
-               libxcb-composite0-dev,
-               libxcb-randr0-dev,
-               libxcb-xrm-dev,
-Standards-Version: 4.1.4
+Maintainer: Debian i3 maintainers <team+i3@tracker.debian.org>
+Uploaders: Jakob Haufe <sur5r@debian.org>,
+           Michael Stapelberg <stapelberg@debian.org>,
+Build-Depends: debhelper-compat (= 13),
+Build-Depends-Arch: libcairo2-dev,
+                    libev-dev,
+                    libpam0g-dev,
+                    libxcb-composite0-dev,
+                    libxcb-dpms0-dev,
+                    libxcb-image0-dev,
+                    libxcb-randr0-dev,
+                    libxcb-util-dev,
+                    libxcb-xinerama0-dev,
+                    libxcb-xkb-dev,
+                    libxcb-xrm-dev,
+                    libxcb1-dev,
+                    libxkbcommon-dev (>= 0.5.0),
+                    libxkbcommon-x11-dev (>= 0.5.0),
+                    meson,
+                    pkgconf,
+Standards-Version: 4.7.2
 Homepage: https://i3wm.org/i3lock/
 Vcs-Git: https://salsa.debian.org/i3-team/i3lock.git
 Vcs-Browser: https://salsa.debian.org/i3-team/i3lock
+Rules-Requires-Root: no
 
 Package: i3lock
 Architecture: any
 Section: x11
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+Recommends: xss-lock,
+            xssproxy,
 Description: improved screen locker
  i3lock is a simple screen locker like slock. After starting it, you will
  see a white screen (you can configure the color/an image). You can return
