@@ -57,7 +57,7 @@
 typedef void (*ev_callback_t)(EV_P_ ev_timer *w, int revents);
 static void input_done(void);
 
-char color[7] = "ffffff";
+char color[7] = "a3a3a3";
 uint32_t last_resolution[2];
 xcb_window_t win;
 static xcb_cursor_t cursor;
@@ -81,11 +81,12 @@ extern unlock_state_t unlock_state;
 extern auth_state_t auth_state;
 int failed_attempts = 0;
 bool show_failed_attempts = false;
+bool show_keyboard_layout = false;
 bool retry_verification = false;
 
-static struct xkb_state *xkb_state;
+struct xkb_state *xkb_state;
 static struct xkb_context *xkb_context;
-static struct xkb_keymap *xkb_keymap;
+struct xkb_keymap *xkb_keymap;
 static struct xkb_compose_table *xkb_compose_table;
 static struct xkb_compose_state *xkb_compose_state;
 static uint8_t xkb_base_event;
@@ -308,41 +309,6 @@ static void input_done(void) {
     if (debug_mode)
         fprintf(stderr, "Authentication failure\n");
 
-    /* Get state of Caps and Num lock modifiers, to be displayed in
-     * STATE_AUTH_WRONG state */
-    xkb_mod_index_t idx, num_mods;
-    const char *mod_name;
-
-    num_mods = xkb_keymap_num_mods(xkb_keymap);
-
-    for (idx = 0; idx < num_mods; idx++) {
-        if (!xkb_state_mod_index_is_active(xkb_state, idx, XKB_STATE_MODS_EFFECTIVE))
-            continue;
-
-        mod_name = xkb_keymap_mod_get_name(xkb_keymap, idx);
-        if (mod_name == NULL)
-            continue;
-
-        /* Replace certain xkb names with nicer, human-readable ones. */
-        if (strcmp(mod_name, XKB_MOD_NAME_CAPS) == 0)
-            mod_name = "Caps Lock";
-        else if (strcmp(mod_name, XKB_MOD_NAME_ALT) == 0)
-            mod_name = "Alt";
-        else if (strcmp(mod_name, XKB_MOD_NAME_NUM) == 0)
-            mod_name = "Num Lock";
-        else if (strcmp(mod_name, XKB_MOD_NAME_LOGO) == 0)
-            mod_name = "Super";
-
-        char *tmp;
-        if (modifier_string == NULL) {
-            if (asprintf(&tmp, "%s", mod_name) != -1)
-                modifier_string = tmp;
-        } else if (asprintf(&tmp, "%s, %s", modifier_string, mod_name) != -1) {
-            free(modifier_string);
-            modifier_string = tmp;
-        }
-    }
-
     auth_state = STATE_AUTH_WRONG;
     failed_attempts += 1;
     clear_input();
@@ -407,7 +373,7 @@ static void handle_key_press(xcb_key_press_event_t *event) {
                 return;
             case XKB_COMPOSE_COMPOSED:
                 /* xkb_compose_state_get_utf8 doesn't include the terminating byte in the return value
-             * as xkb_keysym_to_utf8 does. Adding one makes the variable n consistent. */
+                 * as xkb_keysym_to_utf8 does. Adding one makes the variable n consistent. */
                 n = xkb_compose_state_get_utf8(xkb_compose_state, buffer, sizeof(buffer)) + 1;
                 ksym = xkb_compose_state_get_one_sym(xkb_compose_state);
                 composed = true;
@@ -937,6 +903,7 @@ static void xcb_check_cb(EV_P_ ev_check *w, int revents) {
             default:
                 if (type == xkb_base_event) {
                     process_xkb_event(event);
+                    redraw_screen();
                 }
                 if (randr_base > -1 &&
                     type == randr_base + XCB_RANDR_SCREEN_CHANGE_NOTIFY) {
@@ -1032,6 +999,7 @@ int main(int argc, char *argv[]) {
         {"ignore-empty-password", no_argument, NULL, 'e'},
         {"inactivity-timeout", required_argument, NULL, 'I'},
         {"show-failed-attempts", no_argument, NULL, 'f'},
+        {"show-keyboard-layout", no_argument, NULL, 'k'},
         {NULL, no_argument, NULL, 0}};
 
     if ((pw = getpwuid(getuid())) == NULL)
@@ -1041,7 +1009,7 @@ int main(int argc, char *argv[]) {
     if (getenv("WAYLAND_DISPLAY") != NULL)
         errx(EXIT_FAILURE, "i3lock is a program for X11 and does not work on Wayland. Try https://github.com/swaywm/swaylock instead");
 
-    char *optstring = "hvnbdc:p:ui:teI:f";
+    char *optstring = "hvnbdc:p:ui:teI:fk";
     while ((o = getopt_long(argc, argv, optstring, longopts, &longoptind)) != -1) {
         switch (o) {
             case 'v':
@@ -1101,9 +1069,12 @@ int main(int argc, char *argv[]) {
             case 'f':
                 show_failed_attempts = true;
                 break;
+            case 'k':
+                show_keyboard_layout = true;
+                break;
             default:
                 errx(EXIT_FAILURE, "Syntax: i3lock [-v] [-n] [-b] [-d] [-c color] [-u] [-p win|default]"
-                                   " [-i image.png] [-t] [-e] [-I timeout] [-f]");
+                                   " [-i image.png] [-t] [-e] [-I timeout] [-f] [-k]");
         }
     }
 

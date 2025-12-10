@@ -1,0 +1,16 @@
+Description: Fix acute accent in manpage
+Author: Jakob Haufe <sur5r@debian.org>
+Forwarded: no
+Last-Update: 2025-04-15
+
+--- i3lock-2.15.orig/i3lock.1
++++ i3lock-2.15/i3lock.1
+@@ -91,7 +91,7 @@ Display the given PNG image instead of a
+ .BI \fB\-\-raw= format
+ Read the image given by \-\-image as a raw image instead of PNG. The argument is the image's format
+ as <width>x<height>:<pixfmt>. The supported pixel formats are:
+-\'native', 'rgb', 'xrgb', 'rgbx', 'bgr', 'xbgr', and 'bgrx'.
++\(aqnative', \(aqrgb', \(aqxrgb', \(aqrgbx', \(aqbgr', \(aqxbgr', and \(aqbgrx'.
+ The "native" pixel format expects a pixel as a 32-bit (4-byte) integer in
+ the machine's native endianness, with the upper 8 bits unused. Red, green and blue are stored in
+ the remaining bits, in that order.

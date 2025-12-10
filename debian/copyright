@@ -1,14 +1,15 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: i3lock
-Upstream-Contact: Michael Stapelberg <michael+i3lock@stapelberg.de>
+Upstream-Contact: Michael Stapelberg <michael+i3lock@stapelberg.ch>
 Source: https://i3wm.org/i3lock
 
 Files: *
-Copyright: 2010 Michael Stapelberg
+Copyright: 2009-2025 Michael Stapelberg
 License: BSD-3-clause
 
 Files: debian/*
-Copyright: 2010 Michael Stapelberg <stapelberg@debian.org>
+Copyright: 2010-2020 Michael Stapelberg <stapelberg@debian.org>
+           2020-2025 Jakob Haufe <sur5r@debian.org>
 License: BSD-3-clause
 
 License: BSD-3-clause
